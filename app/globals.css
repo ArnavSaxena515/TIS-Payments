@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #fafbfc;
+  --ink: #0a1020;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-serif { font-family: 'DM Serif Display', Georgia, serif; }
+.font-mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+@keyframes flashRow {
+  0%   { background-color: rgba(15, 181, 181, 0.18); box-shadow: inset 3px 0 0 #0fb5b5; }
+  100% { background-color: transparent; box-shadow: inset 3px 0 0 transparent; }
+}
+.row-new { animation: flashRow 3s ease-out 1; }
+
+.scroll-mono::-webkit-scrollbar { height: 8px; width: 8px; }
+.scroll-mono::-webkit-scrollbar-thumb { background: #c2cce0; border-radius: 4px; }
