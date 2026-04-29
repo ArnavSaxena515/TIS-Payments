@@ -7,6 +7,8 @@ export async function POST(req: Request) {
   const url = process.env.REFOLD_TRIGGER_URL
   const apiKey = process.env.REFOLD_API_KEY
   const linkedAccountId = process.env.REFOLD_LINKED_ACCOUNT_ID
+  const slug = process.env.REFOLD_SLUG
+  const syncExecution = process.env.REFOLD_SYNC_EXECUTION ?? 'false'
   if (!url) return NextResponse.json({ error: 'Refold trigger URL not configured' }, { status: 500 })
 
   let body: any = {}
@@ -20,6 +22,8 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
         ...(apiKey ? { 'X-API-Key': apiKey } : {}),
         ...(linkedAccountId ? { linked_account_id: linkedAccountId } : {}),
+        ...(slug ? { slug } : {}),
+        sync_execution: syncExecution,
       },
       body: JSON.stringify(body ?? {}),
     })

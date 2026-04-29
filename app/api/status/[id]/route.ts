@@ -15,6 +15,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const tmpl = process.env.REFOLD_STATUS_URL_TEMPLATE
   const apiKey = process.env.REFOLD_API_KEY
   const linkedAccountId = process.env.REFOLD_LINKED_ACCOUNT_ID
+  const slug = process.env.REFOLD_SLUG
   if (!tmpl) return NextResponse.json({ error: 'Refold status URL not configured' }, { status: 500 })
 
   const url = tmpl.replace('{executionId}', encodeURIComponent(params.id))
@@ -26,6 +27,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       headers: {
         ...(apiKey ? { 'X-API-Key': apiKey } : {}),
         ...(linkedAccountId ? { linked_account_id: linkedAccountId } : {}),
+        ...(slug ? { slug } : {}),
       },
     })
   } catch {
