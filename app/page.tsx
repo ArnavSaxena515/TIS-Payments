@@ -9,13 +9,14 @@ import { StatsRow } from './components/StatsRow'
 import { EmptyState } from './components/EmptyState'
 import { LoadingState } from './components/LoadingState'
 import { Toast } from './components/Toast'
+import { OutboundReconciliationSection } from './components/OutboundReconciliationSection'
 import { useTriggerAndPoll, pollingMessage } from './hooks/useTriggerAndPoll'
-import type { PaymentBatch, BatchStats } from './lib/types'
+import type { PaymentBatch, BatchStats, ReconciliationStatement } from './lib/types'
 
 const fetcher = (url: string) => fetch(url, { cache: 'no-store' }).then((r) => r.json())
 
 export default function Dashboard() {
-  const { data, mutate, isLoading } = useSWR<{ batches: PaymentBatch[]; stats: BatchStats }>(
+  const { data, mutate, isLoading } = useSWR<{ batches: PaymentBatch[]; reconciliations: ReconciliationStatement[]; stats: BatchStats }>(
     '/api/data',
     fetcher,
     { refreshInterval: 5000 },
@@ -39,7 +40,9 @@ export default function Dashboard() {
   })
 
   const batches = data?.batches ?? []
-  const stats = data?.stats ?? { totalBatches: 0, totalTransactions: 0, executedBatches: 0, totalValueByCurrency: {} }
+  const reconciliations = data?.reconciliations ?? []
+  const stats = data?.stats ?? { totalBatches: 0, totalTransactions: 0, executedBatches: 0, totalReconciliations: 0, totalReconciliationEntries: 0, totalValueByCurrency: {} }
+  const executedBatchCount = batches.filter((b) => b.status === 'executed').length
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
@@ -89,6 +92,12 @@ export default function Dashboard() {
           <BatchTable batches={batches} newBatchId={newBatchId} />
         )}
       </section>
+
+      <OutboundReconciliationSection
+        reconciliations={reconciliations}
+        executedBatchCount={executedBatchCount}
+        refetch={mutate}
+      />
 
       {toast && <Toast toast={toast} onDismiss={dismissToast} />}
     </div>

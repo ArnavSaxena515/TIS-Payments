@@ -6,3 +6,4 @@ export const redis = new Redis({
 })
 
 export const BATCHES_KEY = 'tis:batches'
+export const RECONCILIATIONS_KEY = 'tis:reconciliations'

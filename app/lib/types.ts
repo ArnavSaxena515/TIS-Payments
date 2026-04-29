@@ -42,5 +42,47 @@ export interface BatchStats {
   totalBatches: number
   totalTransactions: number
   executedBatches: number
+  totalReconciliations: number
+  totalReconciliationEntries: number
   totalValueByCurrency: Record<string, string>
+}
+
+export interface ReconciliationBalance {
+  amount: string
+  currency: string
+  indicator: 'CRDT' | 'DBIT'
+  date: string
+}
+
+export interface ReconciliationEntry {
+  endToEndId: string
+  amount: string
+  currency: string
+  creditDebitIndicator: 'CRDT' | 'DBIT'
+  status?: string
+  bookingDate?: string
+  valueDate?: string
+  creditorName?: string
+  creditorBic?: string
+  remittanceInfo?: string
+}
+
+export interface ReconciliationStatement {
+  reconciliationId: string
+  receivedAt: string
+  messageId: string
+  creationDateTime: string
+  statementId: string
+  statementCreatedAt: string
+  fromDate?: string
+  toDate?: string
+  accountId: string
+  accountCurrency: string
+  accountOwner?: string
+  openingBalance?: ReconciliationBalance
+  closingBalance?: ReconciliationBalance
+  numberOfEntries: number
+  totalAmount?: string
+  entries: ReconciliationEntry[]
+  rawXml: string
 }

@@ -12,9 +12,16 @@ export interface Toast {
 
 interface Options {
   onCompleted?: () => void | Promise<void>
+  triggerEndpoint?: string
+  successMessage?: string
+  triggerErrorMessage?: string
 }
 
 export function useTriggerAndPoll(opts: Options = {}) {
+  const triggerEndpoint = opts.triggerEndpoint ?? '/api/trigger'
+  const successMessage = opts.successMessage ?? 'Payment batch received'
+  const triggerErrorMessage = opts.triggerErrorMessage ?? 'Workflow trigger failed — check Refold connection'
+
   const [state, setState] = useState<TriggerState>('idle')
   const [executionId, setExecutionId] = useState<string | null>(null)
   const [elapsed, setElapsed] = useState(0)
@@ -92,7 +99,7 @@ export function useTriggerAndPoll(opts: Options = {}) {
         if (r === 'done') {
           if (opts.onCompleted) await opts.onCompleted()
           schedule(1000, () => { opts.onCompleted?.() })
-          finish('success', { type: 'success', message: 'Payment batch received' })
+          finish('success', { type: 'success', message: successMessage })
           return
         }
         if (r === 'failed') {
@@ -117,7 +124,7 @@ export function useTriggerAndPoll(opts: Options = {}) {
     setToast(null)
     setState('triggering')
     try {
-      const res = await fetch('/api/trigger', {
+      const res = await fetch(triggerEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -126,7 +133,7 @@ export function useTriggerAndPoll(opts: Options = {}) {
       if (!res.ok || !data.executionId) {
         finish('failed', {
           type: 'error',
-          message: 'Workflow trigger failed — check Refold connection',
+          message: triggerErrorMessage,
           detail: data?.detail ?? data?.error,
         })
         return
@@ -147,5 +154,12 @@ export function pollingMessage(elapsed: number): string {
   if (elapsed < 10) return 'Awaiting payment batch from corporate ERP…'
   if (elapsed < 25) return 'Workflow running — pulling open payables from SAP…'
   if (elapsed < 45) return 'Generating pain.001 batch…'
+  return 'Still working… (this is taking longer than usual)'
+}
+
+export function reconciliationPollingMessage(elapsed: number): string {
+  if (elapsed < 10) return 'Workflow running — generating camt.053 statement…'
+  if (elapsed < 25) return 'Mapping reconciliation entries…'
+  if (elapsed < 45) return 'Preparing statement…'
   return 'Still working… (this is taking longer than usual)'
 }
