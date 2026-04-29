@@ -15,6 +15,10 @@ interface Options {
   triggerEndpoint?: string
   successMessage?: string
   triggerErrorMessage?: string
+  /** Optional fast-path: each poll tick, also call this. If it returns true, treat as completed. */
+  completionCheck?: () => Promise<boolean>
+  /** Faster initial polling cadence in ms (default 2000). */
+  fastPollMs?: number
 }
 
 export function useTriggerAndPoll(opts: Options = {}) {
@@ -64,20 +68,31 @@ export function useTriggerAndPoll(opts: Options = {}) {
   }, [clearAll])
 
   const pollOnce = useCallback(async (id: string): Promise<'continue' | 'done' | 'failed'> => {
-    try {
-      const res = await fetch(`/api/status/${encodeURIComponent(id)}`, { cache: 'no-store' })
-      if (!res.ok) return 'continue'
-      const data = await res.json()
-      if (data.status === 'COMPLETED') return 'done'
-      if (data.status === 'FAILED') {
-        setToast({ type: 'error', message: 'Workflow failed', detail: data.error ?? id })
-        return 'failed'
+    const statusPromise = (async (): Promise<'continue' | 'done' | 'failed'> => {
+      try {
+        const res = await fetch(`/api/status/${encodeURIComponent(id)}`, { cache: 'no-store' })
+        if (!res.ok) return 'continue'
+        const data = await res.json()
+        if (data.status === 'COMPLETED') return 'done'
+        if (data.status === 'FAILED') {
+          setToast({ type: 'error', message: 'Workflow failed', detail: data.error ?? id })
+          return 'failed'
+        }
+        return 'continue'
+      } catch {
+        return 'continue'
       }
-      return 'continue'
-    } catch {
-      return 'continue'
-    }
-  }, [])
+    })()
+
+    const checkPromise = opts.completionCheck
+      ? opts.completionCheck().then((done) => (done ? 'done' as const : 'continue' as const)).catch(() => 'continue' as const)
+      : Promise.resolve('continue' as const)
+
+    const [s, c] = await Promise.all([statusPromise, checkPromise])
+    if (s === 'failed') return 'failed'
+    if (s === 'done' || c === 'done') return 'done'
+    return 'continue'
+  }, [opts])
 
   const startPolling = useCallback((id: string) => {
     setState('polling')
@@ -108,7 +123,8 @@ export function useTriggerAndPoll(opts: Options = {}) {
         }
         attempts++
         const e = (Date.now() - startedRef.current) / 1000
-        const wait = e < 20 ? 2000 : e < 45 ? 5000 : 10000
+        const fast = opts.fastPollMs ?? 2000
+        const wait = e < 20 ? fast : e < 45 ? 5000 : 10000
         await new Promise((res) => {
           const t = setTimeout(() => { timersRef.current.delete(t); res(null) }, wait)
           timersRef.current.add(t)

@@ -31,12 +31,31 @@ export function OutboundReconciliationSection({ reconciliations, executedBatchCo
     lastTopRef.current = top
   }, [reconciliations])
 
-  const { state, elapsed, toast, trigger, dismissToast } = useTriggerAndPoll({
+  const baselineTopRef = useRef<string | null>(null)
+
+  const { state, elapsed, toast, trigger: rawTrigger, dismissToast } = useTriggerAndPoll({
     triggerEndpoint: '/api/trigger-reconciliation',
     successMessage: 'Reconciliation statement received',
     triggerErrorMessage: 'Reconciliation trigger failed — check Refold connection',
+    fastPollMs: 1500,
     onCompleted: async () => { await refetch() },
+    completionCheck: async () => {
+      try {
+        const res = await fetch('/api/data', { cache: 'no-store' })
+        if (!res.ok) return false
+        const d = await res.json()
+        const top = d?.reconciliations?.[0]?.reconciliationId ?? null
+        return Boolean(top && top !== baselineTopRef.current)
+      } catch {
+        return false
+      }
+    },
   })
+
+  const trigger = () => {
+    baselineTopRef.current = reconciliations[0]?.reconciliationId ?? null
+    rawTrigger()
+  }
 
   const buttonDisabled = executedBatchCount === 0
   const totalEntries = reconciliations.reduce((n, r) => n + r.entries.length, 0)
