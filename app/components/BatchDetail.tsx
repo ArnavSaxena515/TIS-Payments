@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronRight, ChevronDown, Play } from 'lucide-react'
 import type { PaymentBatch } from '../lib/types'
 import { formatAmount, formatDateTime } from '../lib/formatters'
+import { formatXml } from '../lib/xml-format'
 import { StatusBadge } from './StatusBadge'
 import { CurrencyAmount } from './CurrencyAmount'
 
@@ -131,8 +132,8 @@ export function BatchDetail({ initial }: { initial: PaymentBatch }) {
           <span className="text-xs text-navy-400 font-mono">{batch.rawXml.length} chars</span>
         </button>
         {showXml && (
-          <pre className="border-t border-navy-100 bg-navy-50 px-5 py-4 text-xs font-mono text-navy-800 overflow-x-auto scroll-mono whitespace-pre">
-            {batch.rawXml}
+          <pre className="border-t border-navy-100 bg-navy-50 px-5 py-4 text-xs font-mono text-navy-800 overflow-x-auto scroll-mono whitespace-pre leading-relaxed max-h-[70vh]">
+            {formatXml(batch.rawXml)}
           </pre>
         )}
       </section>

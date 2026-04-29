@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ReconciliationStatement } from '../lib/types'
 import { formatAmount, formatDateTime } from '../lib/formatters'
+import { formatXml } from '../lib/xml-format'
 import { CurrencyAmount } from './CurrencyAmount'
 
 export function ReconciliationDetailModal({ recon, onClose }: { recon: ReconciliationStatement; onClose: () => void }) {
@@ -111,8 +112,8 @@ export function ReconciliationDetailModal({ recon, onClose }: { recon: Reconcili
             <span className="text-xs text-navy-400 font-mono">{recon.rawXml.length} chars</span>
           </button>
           {showXml && (
-            <pre className="border-t border-navy-100 bg-navy-50 px-6 py-4 text-xs font-mono text-navy-800 overflow-x-auto scroll-mono whitespace-pre">
-              {recon.rawXml}
+            <pre className="border-t border-navy-100 bg-navy-50 px-6 py-4 text-xs font-mono text-navy-800 overflow-x-auto scroll-mono whitespace-pre leading-relaxed max-h-[60vh]">
+              {formatXml(recon.rawXml)}
             </pre>
           )}
         </div>
