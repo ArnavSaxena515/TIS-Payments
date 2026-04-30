@@ -12,10 +12,13 @@ export function Header() {
       <header className="border-b border-navy-100 bg-white">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-7 h-7 bg-navy-900 relative">
-              <div className="absolute inset-1 border border-accent" />
-            </div>
-            <div className="leading-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://dka575ofm4ao0.cloudfront.net/pages-transactional_logos/retina/39270/MicrosoftTeams-image_%2821%29.png"
+              alt="TIS"
+              className="h-8 w-auto object-contain"
+            />
+            <div className="leading-none border-l border-navy-100 pl-3">
               <div className="font-serif text-xl text-navy-900 tracking-tight">TIS Payments</div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-navy-500 mt-0.5">
                 Treasury Intelligence
