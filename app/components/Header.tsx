@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { ResetModal } from './ResetModal'
 
 export function Header() {
@@ -25,9 +26,11 @@ export function Header() {
             <span className="hidden sm:inline text-navy-400">Payment Hub</span>
             <button
               onClick={() => setShowReset(true)}
-              className="text-navy-500 hover:text-navy-900 transition-colors"
+              aria-label="Refresh"
+              title="Refresh"
+              className="p-1.5 text-navy-500 hover:text-navy-900 hover:bg-navy-50 rounded-sm transition-colors"
             >
-              Reset Demo
+              <RefreshCw size={16} />
             </button>
           </nav>
         </div>

@@ -63,7 +63,7 @@ export default function Dashboard() {
 
       <section className="bg-white border border-navy-100 px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="space-y-1">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-navy-400">Demo Trigger</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-navy-400">Inbound Trigger</div>
           <div className="text-sm text-navy-600">Pull a fresh pain.001 batch from SAP via Refold workflow.</div>
         </div>
         <div className="flex items-center gap-4">
